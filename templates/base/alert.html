@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title></title>
+  <style>
+
+    /* Message box style */
+    .alert {
+      padding: 10px 30px 10px 30px;
+      margin-bottom: 10px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      text-align: center;
+      background-color: skyblue;
+    }
+
+    /* Close button style */
+    .close {
+      float: right;
+      font-size: 20px;
+      font-weight: bold;
+      line-height: 1;
+      color: #000;
+      text-shadow: 0 1px 0 #fff;
+      opacity: 0.2;
+      transition: opacity 0.2s ease-in-out;
+      cursor: pointer;
+      margin-left: 10px;
+      margin-top: 2px;
+    }
+
+    .close:hover {
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container mt-5">
+    <!-- Message box -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-primary">
+          {{ message }}
+          <span class="close" onclick="this.parentElement.style.display='none';">&times;</span>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+</body>
+</html>

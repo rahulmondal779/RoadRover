@@ -1,0 +1,185 @@
+{% extends "base/base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    {% block head %}
+    <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/media/css/open-iconic-bootstrap.min.css">
+    <link rel="stylesheet" href="/media/css/animate.css">
+    <link rel="stylesheet" href="/media/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="/media/css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="/media/css/magnific-popup.css">
+    <link rel="stylesheet" href="/media/css/aos.css">
+    <link rel="stylesheet" href="/media/css/ionicons.min.css">
+    <link rel="stylesheet" href="/media/css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="/media/css/jquery.timepicker.css">
+    <link rel="stylesheet" href="/media/css/flaticon.css">
+    <link rel="stylesheet" href="/media/css/icomoon.css">
+    <link rel="stylesheet" href="/media/css/single_car_style.css">
+    {% endblock head %}
+</head>
+<body>
+    
+
+
+{% block body %}
+<div class="row">
+    <div class="col-md-4" style="top: 470px;">
+        <div class="car-details">
+            <img src="/path/to/car_image.jpg" class="img-fluid mb-4" alt="Car Image" style="margin-left: 30px;">
+            <h3 class="card-subtitle mb-2 text-muted" style="margin-left: 30px;">Toyota Corolla</h3>
+            <ul class="list-group list-group-horizontal">
+                <li class="dis">
+                    <div class="col-md d-flex align-self-stretch ftco-animate">
+                        <div class="media block-6 services">
+                            <div class="media-body py-md-4">
+                                <div class="d-flex mb-3 align-items-center">
+                                    <div class="icon d-flex align-items-center justify-content-center"><span
+                                            class="flaticon-dashboard"></span></div>
+                                    <div class="text">
+                                        <h6 class="heading mb-0 pl-3">Mileage <span>{{car.mileage}}0,000</span></h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="dis">
+                    <div class="col-md d-flex align-self-stretch ftco-animate">
+                        <div class="media block-6 services">
+                            <div class="media-body py-md-4">
+                                <div class="d-flex mb-3 align-items-center">
+                                    <div class="icon d-flex align-items-center justify-content-center"><span
+                                            class="flaticon-pistons"></span></div>
+                                    <div class="text">
+                                        <h6 class="heading mb-0 pl-3">Transmission <span>{{car.gearbox}}</span></h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="dis">
+                    <div class="col-md d-flex align-self-stretch ftco-animate">
+                        <div class="media block-6 services">
+                            <div class="media-body py-md-4">
+                                <div class="d-flex mb-3 align-items-center">
+                                    <div class="icon d-flex align-items-center justify-content-center"><span
+                                            class="flaticon-car-seat"></span></div>
+                                    <div class="text">
+                                        <h6 class="heading mb-0 pl-3">Seats <span>{{car.seat}} Adults</span></h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="dis">
+                    <div class="col-md d-flex align-self-stretch ftco-animate">
+                        <div class="media block-6 services">
+                            <div class="media-body py-md-4">
+                                <div class="d-flex mb-3 align-items-center">
+                                    <div class="icon d-flex align-items-center justify-content-center"><span
+                                            class="flaticon-backpack"></span></div>
+                                    <div class="text">
+                                        <h6 class="heading mb-0 pl-3">Luggage <span>4 Bags</span></h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="dis">
+                    <div class="col-md d-flex align-self-stretch ftco-animate">
+                        <div class="media block-6 services">
+                            <div class="media-body py-md-4">
+                                <div class="d-flex mb-3 align-items-center">
+                                    <div class="icon d-flex align-items-center justify-content-center"><span
+                                            class="flaticon-diesel"></span></div>
+                                    <div class="text">
+                                        <h6 class="heading mb-0 pl-3">Fuel <span>{{car.fuel_type}}</span></h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
+
+    <div class="col-md-4"></div>
+
+    <aside class="col-md-3 payment-side">
+        <!-- Coupon Section -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Apply Coupon</h5>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="coupon">Have a coupon?</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="coupon" name="coupon" placeholder="Coupon code">
+                            <span class="input-group-append">
+                                <button type="submit" class="btn btn-primary">Apply</button>
+                            </span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Payment Summary -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Payment Summary</h5>
+                <dl class="dlist-align">
+                    <dt>Total Price:</dt>
+                    <dd class="text-right">₹2000</dd>
+                </dl>
+                <dl class="dlist-align">
+                    <dt>Discount:</dt>
+                    <dd class="text-right">₹0</dd>
+                </dl>
+                <dl class="dlist-align">
+                    <dt>Total:</dt>
+                    <dd class="text-right h5"><strong>₹2000</strong></dd>
+                </dl>
+                <hr>
+                <p class="text-center mb-3">
+                    <!-- Payment methods icons -->
+                    <img src="/media/images/payments.png" height="26" alt="Accepted Payment Methods">
+                </p>
+                <button class="btn btn-block btn-primary">Proceed to Payment</button>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<script src="/media/js/jquery.min.js"></script>
+<script src="/media/js/jquery-migrate-3.0.1.min.js"></script>
+<script src="/media/js/popper.min.js"></script>
+<script src="/media/js/bootstrap.min.js"></script>
+<script src="/media/js/jquery.easing.1.3.js"></script>
+<script src="/media/js/jquery.waypoints.min.js"></script>
+<script src="/media/js/jquery.stellar.min.js"></script>
+<script src="/media/js/owl.carousel.min.js"></script>
+<script src="/media/js/jquery.magnific-popup.min.js"></script>
+<script src="/media/js/aos.js"></script>
+<script src="/media/js/jquery.animateNumber.min.js"></script>
+<script src="/media/js/bootstrap-datepicker.js"></script>
+<script src="/media/js/jquery.timepicker.min.js"></script>
+<script src="/media/js/scrollax.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
+<script src="/media/js/google-map.js"></script>
+<script src="/media/js/single_car_style.js"></script>
+
+{% endblock body %}
+</body>
+</html>

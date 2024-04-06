@@ -1,0 +1,129 @@
+{% extends "base/base.html" %}
+{% block head %}
+<link rel="stylesheet" href="/media/css/single_car_style.css">
+<style>
+    .wishlist-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 15px;
+    }
+    .wishlist-table th, .wishlist-table td {
+        vertical-align: middle;
+        border-color: #dee2e6;
+    }
+    .wishlist-table th {
+        border-bottom: 2px solid #dee2e6;
+        background-color: #007bff;
+        font-size: 18px;
+        font-weight: bold;
+        color: #fff;
+        text-align: left;
+        padding: 15px;
+    }
+    .wishlist-table td {
+        background-color: #f8f9fa;
+        padding: 20px;
+    }
+    .wishlist-img {
+        max-width: 200px; /* Increased size */
+        height: auto;
+        display: block;
+        margin: 0 auto;
+        border-radius: 8px;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        position: relative;
+        right: 30px;
+    }
+    .wishlist-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #212529;
+        text-decoration: none;
+    }
+    .wishlist-name {
+        font-size: 16px;
+        color: #6c757d;
+    }
+    .wishlist-price {
+        font-size: 18px;
+        font-weight: bold;
+        color: #28a745;
+    }
+    .wishlist-year {
+        font-size: 16px;
+        color: #6c757d;
+    }
+    .wishlist-btn {
+        font-size: 16px;
+        color: #fff;
+        background-color: #3575dc;
+        border-color: #000000;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    .wishlist-btn:hover {
+        background-color: #ff0000;
+        border-color: #bd2130;
+        color: white;
+    }
+    .no-items {
+        text-align: center;
+        color: #6c757d;
+    }
+</style>
+{% endblock head %}
+
+{% block body %}
+<section class="section-content">
+    <div class="container">
+        <div class="row">
+            <main class="col-md-12">
+                <div class="card">
+                    <table class="wishlist-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Car</th>
+                                <th scope="col">Brand</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Year</th>
+                                <th scope="col">Price</th>
+                                <th scope="col" class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in wishlist_items %}
+                            <tr>
+                                <td>
+                                    <img src="{{ item.car.car_image.url }}" alt="img" class="wishlist-img">
+                                </td>
+                                <td>
+                                    <a href="{% url 'car_info' slug=item.car.slug %}" class="wishlist-title">{{ item.car.car_brand }}</a>
+                                </td>
+                                <td>
+                                    <span class="wishlist-name">{{ item.car.car_name }}</span>
+                                </td>
+                                <td>
+                                    <span class="wishlist-year">{{ item.car.year }}</span>
+                                </td>
+                                <td>
+                                    <span class="wishlist-price">₹{{ item.car.price }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <a href="{% url 'remove_from_wishlist' uid=item.car.uid %}" class="wishlist-btn">Remove</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="no-items">No items in your wishlist</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+</section>
+{% endblock body %}
