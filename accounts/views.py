@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login,logout 
 from django.views import View
 from django.core.mail import send_mail
-
+from django.core.exceptions import ObjectDoesNotExist
 from car_rental import settings
 from .models import Profile
 from accounts.models import *
@@ -132,6 +132,13 @@ def payment_page(request, car_slug):
     final_price = car.price
     applied_coupon = None  # Initialize applied_coupon variable
     
+    # Try to get the cart object for the current user
+    try:
+        cart_obj = Cart.objects.get(is_paid=False, user=request.user)
+    except Cart.DoesNotExist:
+        # If the cart does not exist, create a new one
+        cart_obj = Cart.objects.create(user=request.user)
+    
     if request.method == 'POST':
         coupon_code = request.POST.get('coupon_code')
         try:
@@ -147,16 +154,19 @@ def payment_page(request, car_slug):
                 messages.error(request, f'Coupon applicable on minimum purchase of ₹{coupon.minimum_amount}.')
         except Coupon.DoesNotExist:
             messages.error(request, 'Invalid coupon code.')
-    
-    client = razorpay.Client(auth = (settings.KEY, settings.SECRET))
-    payment = client.order.create({'amount': final_price*100, 'currency':'INR','payment_capture':1 }) 
-    # print(payment)
+            
+    client = razorpay.Client(auth=(settings.KEY, settings.SECRET))
+    payment = client.order.create({'amount': final_price * 100, 'currency': 'INR', 'payment_capture': 1})
+    cart_obj.razor_pay_order_id = payment['id']
+    cart_obj.save()
+
     context = {
+        'cart': cart_obj,
         'car': car,
         'discount': discount,
         'final_price': final_price,
         'applied_coupon': applied_coupon,  # Add applied_coupon to context
-        'payment':payment,
+        'payment': payment,
     }
     return render(request, 'accounts/payment.html', context)
 
@@ -166,11 +176,15 @@ def remove_coupon(request):
     return JsonResponse({'success': True})
 
 def success(request):
-    order_id = request.GET.get('order_id')
-    cart = Cart.objects.get(razor_pay_order_id = order_id)
-    cart.is_paid = True
-    cart.save
-    return HttpResponse('Payment Success')
+    order_id = request.GET.get('razorpay_order_id')
+    try:
+        cart = Cart.objects.get(razor_pay_order_id=order_id)
+        cart.is_paid = True
+        cart.save()
+        return render(request, 'accounts/success.html')
+    except ObjectDoesNotExist:
+        return HttpResponse('Cart with the specified razor_pay_order_id does not exist.', status=404)
+    
 
 def test(request):
     try:

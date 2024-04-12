@@ -195,6 +195,7 @@
         "currency": "INR",
         "name": "Road Rover", //your business name
         "description": "Purchase Transaction",
+        "image":"",
         "order_id": "{{payment.id}}", 
         "handler": function (response){
             window.location.href = `http://127.0.0.1:8000/accounts/success/?razorpay_order_id=${response.razorpay_order_id}`
