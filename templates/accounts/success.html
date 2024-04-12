@@ -1,0 +1,45 @@
+{% extends "base/base.html" %}
+
+{% block head %}
+<style>
+  /* Internal CSS */
+  .success-container {
+    text-align: center;
+    margin-top: 200px;
+    margin-bottom: 350px;
+  }
+
+  .success-icon {
+    color: #28a745;
+    font-size: 64px;
+  }
+
+  .success-message {
+    font-size: 24px;
+    margin-top: 20px;
+  }
+
+  .back-to-home-btn {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+  }
+
+  .back-to-home-btn:hover {
+    background-color: #0056b3;
+  }
+</style>
+{% endblock head %}
+
+{% block body %}
+<div class="container success-container">
+  <i class="fas fa-check-circle success-icon"></i>
+  <div class="success-message">Payment Successful!</div>
+  <a href="/" class="btn back-to-home-btn">Back to Home</a>
+</div>
+{% endblock body %}
