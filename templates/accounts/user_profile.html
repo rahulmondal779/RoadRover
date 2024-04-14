@@ -1,10 +1,149 @@
 {% extends "base/base.html" %}
 
 {% block head %}
-  
+<style>
+    /* Internal CSS */
+    .profile-container {
+        max-width: 800px;
+        margin-top: 80px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 50px;
+    }
+
+    .profile-header {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .profile-avatar {
+        width: 150px;
+        height: 200px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 20px;
+        position: relative;
+        left: 44%;
+    }
+
+    .profile-name {
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .profile-email {
+        font-size: 18px;
+        color: #666;
+        margin-bottom: 10px;
+    }
+
+    .profile-details {
+        background-color: #fff;
+        padding: 8px;
+        border-radius: 10px;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-info {
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .profile-info-label {
+        font-weight: bold;
+        color: #555;
+    }
+
+    .profile-info-value {
+        margin-left: 10px;
+    }
+
+    .profile-input {
+        margin-bottom: 10px;
+    }
+
+    .profile-input input{
+        border: 1px solid black;
+        
+    }
+
+    .upload-btn {
+        display: inline-block;
+        background-color: #007bff;
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+
+    .upload-btn:hover {
+        background-color: #0056b3;
+    }
+
+    .file-input {
+        display: none;
+    }
+</style>
 {% endblock head %}
 
 {% block body %}
-  
+<div class="container profile-container">
+    <div class="profile-header">
+        <img src="{{ user_profile.profile_images.first.image.url }}" alt="Avatar" class="profile-avatar">
+        <div class="profile-name">{{ user.first_name }} {{ user.last_name }}</div>
+        <div class="profile-email">{{ user_profile.user.email }}</div>
+    </div>
+    <div class="profile-details">
+        <div class="profile-info">
+            <span class="profile-info-label">Username:</span>
+            <span class="profile-info-value">{{ user_profile.user.username }}</span>
+        </div>
+        {% if user_profile.location %}
+        <div class="profile-info">
+            <span class="profile-info-label">Location:</span>
+            <span class="profile-info-value">{{ user_profile.location }}</span>
+        </div>
+        {% else %}
+        <div class="profile-input">
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location">
+        </div>
+        {% endif %}
+        {% if user_profile.phone %}
+        <div class="profile-info">
+            <span class="profile-info-label">Phone:</span>
+            <span class="profile-info-value">{{ user_profile.phone }}</span>
+        </div>
+        {% else %}
+        <div class="profile-input">
+            <label for="phone">Phone:</label>
+            <input type="text" id="phone" name="phone">
+        </div>
+        {% endif %}
+        <div class="profile-info">
+            <span class="profile-info-label">Joined:</span>
+            <span class="profile-info-value">{{ user_profile.user.date_joined|date:"F j, Y" }}</span>
+        </div>
+        <div class="profile-input">
+            <form id="profile-form" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" id="profile-image" name="profile-image" class="file-input"
+                    onchange="uploadProfileImage()">
+                <label for="profile-image" class="upload-btn">Upload Profile Image</label>
+            </form>
+        </div>
+    </div>
+</div>
 
+<script>
+    function uploadProfileImage() {
+      document.getElementById("profile-form").submit();
+    }
+    </script>
 {% endblock body %}

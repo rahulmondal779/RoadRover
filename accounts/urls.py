@@ -11,6 +11,7 @@ urlpatterns = [
     path('logout/',logging_out,name='logout'),
     path('forgot-password/', forgot_password, name='forgot_password'),
     path('reset-password/<token>/', reset_password, name='reset_password'),
+    path('profile/',user_profile,name="profile"),
     path('payment/<slug:car_slug>/',payment_page, name='payment_page'),
     path('success/', success, name='success'),
     path('remove_coupon/', remove_coupon, name='remove_coupon'),

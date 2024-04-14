@@ -3,11 +3,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login,logout 
-from django.views import View
 from django.core.mail import send_mail
 from django.core.exceptions import ObjectDoesNotExist
 from car_rental import settings
-from .models import Profile
+from .models import Profile, ProfileImage
 from accounts.models import *
 from cars.models import *
 from accounts.emails import send_password_reset_email
@@ -124,6 +123,40 @@ def forgot_password(request):
     except Exception as e:
         print(e)
     return render(request, 'accounts/forgot_password.html')
+
+
+def user_profile(request):
+    if request.user.is_authenticated:
+        user_profile = Profile.objects.filter(user=request.user).first()
+        
+        # Retrieve first name and last name from the user object
+        first_name = request.user.first_name
+        last_name = request.user.last_name
+        
+        # Handle image upload
+        if request.method == 'POST' and 'profile-image' in request.FILES:
+            image_file = request.FILES['profile-image']
+            
+            # Delete previous profile image
+            ProfileImage.objects.filter(profile=user_profile).delete()
+            
+            # Save new profile image
+            profile_image = ProfileImage(profile=user_profile)
+            profile_image.image.save(image_file.name, image_file)
+            profile_image.save()
+        
+        profile_images = ProfileImage.objects.filter(profile=user_profile)
+        
+        context = {
+            'user_profile': user_profile,
+            'profile_images': profile_images,
+            'first_name': first_name,
+            'last_name': last_name,
+        }
+        return render(request, 'accounts/user_profile.html', context)
+    else:
+        return redirect('login')
+
 
 @login_required
 def payment_page(request, car_slug):
