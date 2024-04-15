@@ -67,9 +67,8 @@
         margin-bottom: 10px;
     }
 
-    .profile-input input{
+    .profile-input input {
         border: 1px solid black;
-        
     }
 
     .upload-btn {
@@ -109,32 +108,34 @@
             <span class="profile-info-label">Username:</span>
             <span class="profile-info-value">{{ user_profile.user.username }}</span>
         </div>
-        {% if user_profile.location %}
-        <div class="profile-info">
+        <div class="profile-input">
+            {% if user_profile.location %}
             <span class="profile-info-label">Location:</span>
             <span class="profile-info-value">{{ user_profile.location }}</span>
-        </div>
-        {% else %}
-        <div class="profile-input">
+            {% else %}
             <label for="location">Location:</label>
-            <input type="text" id="location" name="location">
+                <input type="text" id="location" name="location">
+            {% endif %}
         </div>
-        {% endif %}
-        {% if user_profile.phone %}
-        <div class="profile-info">
+        <div class="profile-input">
+            {% if user_profile.phone %}
             <span class="profile-info-label">Phone:</span>
             <span class="profile-info-value">{{ user_profile.phone }}</span>
-        </div>
-        {% else %}
-        <div class="profile-input">
+            {% else %}
             <label for="phone">Phone:</label>
-            <input type="text" id="phone" name="phone">
+                <input type="number" id="phone" name="phone">
+            {% endif %}
         </div>
-        {% endif %}
         <div class="profile-info">
             <span class="profile-info-label">Joined:</span>
             <span class="profile-info-value">{{ user_profile.user.date_joined|date:"F j, Y" }}</span>
         </div>
+        {% if not user_profile.location or not user_profile.phone %}
+        <div class="profile-input">
+            <button class="upload-btn" onclick="saveProfileInfo()">Save</button>
+        </div>
+        {% endif %}
+        {% if not user_profile.profile_images.first %}
         <div class="profile-input">
             <form id="profile-form" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
@@ -143,12 +144,69 @@
                 <label for="profile-image" class="upload-btn">Upload Profile Image</label>
             </form>
         </div>
+        {% else %}
+        <div class="profile-input">
+            <form id="profile-form" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" id="profile-image" name="profile-image" class="file-input"
+                    onchange="uploadProfileImage()">
+                <label for="profile-image" class="upload-btn">Change Profile Image</label>
+            </form>
+        </div>
+        {% endif %}
     </div>
 </div>
 
 <script>
     function uploadProfileImage() {
-      document.getElementById("profile-form").submit();
+        document.getElementById("profile-form").submit();
     }
-    </script>
+
+    function saveProfileInfo() {
+        var locationValue = document.getElementById("location").value;
+        var phone = document.getElementById("phone").value;
+
+        // Get CSRF token from cookies
+        var csrftoken = getCookie('csrftoken');
+
+        // Send AJAX request to update profile info
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "{% url 'profile' %}", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.setRequestHeader("X-CSRFToken", csrftoken); // Include CSRF token in headers
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    // Handle successful response
+                    console.log("Profile information updated successfully!");
+                    alert("Profile information updated successfully!");
+                    window.location.reload();
+                    console.log("Page reloaded");
+                } else {
+                    // Handle error response
+                    alert("Failed to update profile information.");
+                }
+            }
+        };
+        var data = "location=" + encodeURIComponent(locationValue) + "&phone=" + encodeURIComponent(phone);
+        xhr.send(data);
+    }
+
+    // Function to retrieve CSRF token from cookies
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
 {% endblock body %}

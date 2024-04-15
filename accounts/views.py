@@ -12,6 +12,7 @@ from cars.models import *
 from accounts.emails import send_password_reset_email
 from django.contrib.auth.decorators import login_required
 import razorpay
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 # registration logic
 def register(request):
@@ -124,6 +125,8 @@ def forgot_password(request):
         print(e)
     return render(request, 'accounts/forgot_password.html')
 
+
+@ensure_csrf_cookie
 @login_required
 def user_profile(request):
     if request.user.is_authenticated:
@@ -144,6 +147,15 @@ def user_profile(request):
             profile_image = ProfileImage(profile=user_profile)
             profile_image.image.save(image_file.name, image_file)
             profile_image.save()
+        
+        if request.method == 'POST':
+            location = request.POST.get('location', None)
+            phone = request.POST.get('phone', None)
+            if location is not None:
+                user_profile.location = location
+            if phone is not None:
+                user_profile.phone = phone
+            user_profile.save()
         
         profile_images = ProfileImage.objects.filter(profile=user_profile)
         
@@ -193,8 +205,6 @@ def payment_page(request, car_slug):
         cart_obj.coupon = coupon  
     cart_obj.save()
 
-    print(payment)
-
     context = {
         'cart': cart_obj,
         'car': car,
@@ -205,11 +215,13 @@ def payment_page(request, car_slug):
     }
     return render(request, 'accounts/payment.html', context)
 
+@login_required
 def remove_coupon(request):
     if 'coupon_code' in request.session:
         del request.session['coupon_code']
     return JsonResponse({'success': True})
 
+@login_required
 def success(request):
     order_id = request.GET.get('razorpay_order_id')
     try:

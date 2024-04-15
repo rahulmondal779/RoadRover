@@ -14,6 +14,8 @@ class Profile(BaseModel):
     is_email_verified = models.BooleanField(default=False)
     email_token = models.CharField(max_length=100, null=True, blank=True)
     forget_password_token = models.CharField(max_length=100, null=True, blank=True)
+    location = models.CharField(max_length=100, null=True, blank=True)
+    phone = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
         return f"Profile for {self.user.username}"
