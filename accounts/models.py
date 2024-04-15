@@ -27,6 +27,9 @@ class ProfileImage(BaseModel):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="profile_images")
     image = models.ImageField(upload_to='profile')
 
+    def __str__(self):
+        return f"Profile Image of {self.profile.user.username}"
+
     
 class Cart(BaseModel):
     user = models.ForeignKey(User,on_delete=models.CASCADE, related_name='carts')

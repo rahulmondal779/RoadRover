@@ -95,7 +95,12 @@
 {% block body %}
 <div class="container profile-container">
     <div class="profile-header">
-        <img src="{{ user_profile.profile_images.first.image.url }}" alt="Avatar" class="profile-avatar">
+        {% if user_profile.profile_images.first %}
+            <img src="{{ user_profile.profile_images.first.image.url }}" alt="Avatar" class="profile-avatar">
+        {% else %}
+            <img src="/media/images/profile.png" alt="Default Avatar" class="profile-avatar" style="height: auto;">
+        {% endif %}
+
         <div class="profile-name">{{ user.first_name }} {{ user.last_name }}</div>
         <div class="profile-email">{{ user_profile.user.email }}</div>
     </div>

@@ -124,7 +124,7 @@ def forgot_password(request):
         print(e)
     return render(request, 'accounts/forgot_password.html')
 
-
+@login_required
 def user_profile(request):
     if request.user.is_authenticated:
         user_profile = Profile.objects.filter(user=request.user).first()
@@ -163,15 +163,13 @@ def payment_page(request, car_slug):
     car = get_object_or_404(Car, slug=car_slug)
     discount = 0
     final_price = car.price
-    applied_coupon = None  # Initialize applied_coupon variable
+    applied_coupon = None 
     
-    # Try to get the cart object for the current user
     try:
         cart_obj = Cart.objects.get(is_paid=False, user=request.user)
     except Cart.DoesNotExist:
-        # If the cart does not exist, create a new one
         cart_obj = Cart.objects.create(user=request.user)
-    
+    coupon = None
     if request.method == 'POST':
         coupon_code = request.POST.get('coupon_code')
         try:
@@ -181,7 +179,7 @@ def payment_page(request, car_slug):
             elif hasattr(request.user, 'profile') and car.price >= coupon.minimum_amount:
                 discount = coupon.discount_price
                 final_price -= discount
-                applied_coupon = coupon.coupon_code  # Store applied coupon code
+                applied_coupon = coupon.coupon_code  
                 messages.success(request, f'Coupon applied successfully. Discount: ₹{discount}')
             else:
                 messages.error(request, f'Coupon applicable on minimum purchase of ₹{coupon.minimum_amount}.')
@@ -191,7 +189,11 @@ def payment_page(request, car_slug):
     client = razorpay.Client(auth=(settings.KEY, settings.SECRET))
     payment = client.order.create({'amount': final_price * 100, 'currency': 'INR', 'payment_capture': 1})
     cart_obj.razor_pay_order_id = payment['id']
+    if coupon: 
+        cart_obj.coupon = coupon  
     cart_obj.save()
+
+    print(payment)
 
     context = {
         'cart': cart_obj,
