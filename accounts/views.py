@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login,logout 
 from django.core.mail import send_mail
 from django.core.exceptions import ObjectDoesNotExist
+import requests
 from car_rental import settings
 from .models import Profile, ProfileImage
 from accounts.models import *
@@ -172,51 +173,61 @@ def user_profile(request):
 
 @login_required
 def payment_page(request, car_slug):
-    car = get_object_or_404(Car, slug=car_slug)
-    discount = 0
-    final_price = car.price
-    applied_coupon = None 
-    car_name  = car.car_name
-    
+    # Check if internet connection is available
     try:
-        cart_obj = Cart.objects.get(is_paid=False, user=request.user)
-    except Cart.DoesNotExist:
-        cart_obj = Cart.objects.create(user=request.user)
-    coupon = None
-    if request.method == 'POST':
-        coupon_code = request.POST.get('coupon_code')
+        requests.get("https://www.google.com", timeout=5)  # Try to access Google with a timeout of 5 seconds
+        internet_connection = True
+    except requests.ConnectionError:
+        internet_connection = False
+    
+    if internet_connection:
+        car = get_object_or_404(Car, slug=car_slug)
+        discount = 0
+        final_price = car.price
+        applied_coupon = None 
+        
         try:
-            coupon = Coupon.objects.get(coupon_code=coupon_code)
-            if coupon.is_expired:
-                messages.error(request, 'Coupon is expired.')
-            elif hasattr(request.user, 'profile') and car.price >= coupon.minimum_amount:
-                discount = coupon.discount_price
-                final_price -= discount
-                applied_coupon = coupon.coupon_code  
-                messages.success(request, f'Coupon applied successfully. Discount: ₹{discount}')
-            else:
-                messages.error(request, f'Coupon applicable on minimum purchase of ₹{coupon.minimum_amount}.')
-        except Coupon.DoesNotExist:
-            messages.error(request, 'Invalid coupon code.')
-            
-    client = razorpay.Client(auth=(settings.KEY, settings.SECRET))
-    payment = client.order.create({'amount': final_price * 100, 'currency': 'INR', 'payment_capture': 1})
-    cart_obj.razor_pay_order_id = payment['id']
-    if coupon: 
-        cart_obj.coupon = coupon
-    cart_obj.amount = final_price
-    cart_obj.car = car
-    cart_obj.save()
+            cart_obj = Cart.objects.get(is_paid=False, user=request.user)
+        except Cart.DoesNotExist:
+            cart_obj = Cart.objects.create(user=request.user)
+        
+        coupon = None
+        if request.method == 'POST':
+            coupon_code = request.POST.get('coupon_code')
+            try:
+                coupon = Coupon.objects.get(coupon_code=coupon_code)
+                if coupon.is_expired:
+                    messages.error(request, 'Coupon is expired.')
+                elif hasattr(request.user, 'profile') and car.price >= coupon.minimum_amount:
+                    discount = coupon.discount_price
+                    final_price -= discount
+                    applied_coupon = coupon.coupon_code  
+                    messages.success(request, f'Coupon applied successfully. Discount: ₹{discount}')
+                else:
+                    messages.error(request, f'Coupon applicable on minimum purchase of ₹{coupon.minimum_amount}.')
+            except Coupon.DoesNotExist:
+                messages.error(request, 'Invalid coupon code.')
+                
+        client = razorpay.Client(auth=(settings.KEY, settings.SECRET))
+        payment = client.order.create({'amount': final_price * 100, 'currency': 'INR', 'payment_capture': 1})
+        cart_obj.razor_pay_order_id = payment['id']
+        if coupon: 
+            cart_obj.coupon = coupon
+        cart_obj.amount = final_price
+        cart_obj.car = car
+        cart_obj.save()
 
-    context = {
-        'cart': cart_obj,
-        'car': car,
-        'discount': discount,
-        'final_price': final_price,
-        'applied_coupon': applied_coupon,
-        'payment': payment,
-    }
-    return render(request, 'accounts/payment.html', context)
+        context = {
+            'cart': cart_obj,
+            'car': car,
+            'discount': discount,
+            'final_price': final_price,
+            'applied_coupon': applied_coupon,
+            'payment': payment,
+        }
+        return render(request, 'accounts/payment.html', context)
+    else:
+        return render(request, 'home/error.html', {'error_message': 'No internet connection. Please check your internet connection and try again.'})
 
 @login_required
 def remove_coupon(request):

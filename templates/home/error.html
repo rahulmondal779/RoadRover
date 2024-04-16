@@ -1,9 +1,23 @@
 {% extends "base/base.html" %}
 
 {% block head %}
-  
+  <style>
+    .error-container {
+      text-align: center;
+      margin-top: 300px;
+      margin-bottom: 320px;
+    }
+
+    .error-message {
+      font-size: 24px;
+      color: red;
+    }
+  </style>
 {% endblock head %}
 
 {% block body %}
-  
+  <div class="container error-container">
+    <h1>Error</h1>
+    <p class="error-message">{{ error_message }}</p>
+  </div>
 {% endblock body %}
