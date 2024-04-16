@@ -9,9 +9,10 @@ from car_rental import settings
 from .models import Profile, ProfileImage
 from accounts.models import *
 from cars.models import *
-from accounts.emails import send_password_reset_email
+from accounts.emails import send_password_reset_email, send_payment_confirmation_email
 from django.contrib.auth.decorators import login_required
 import razorpay
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 # registration logic
 def register(request):
@@ -124,6 +125,8 @@ def forgot_password(request):
         print(e)
     return render(request, 'accounts/forgot_password.html')
 
+
+@ensure_csrf_cookie
 @login_required
 def user_profile(request):
     if request.user.is_authenticated:
@@ -145,6 +148,15 @@ def user_profile(request):
             profile_image.image.save(image_file.name, image_file)
             profile_image.save()
         
+        if request.method == 'POST':
+            location = request.POST.get('location', None)
+            phone = request.POST.get('phone', None)
+            if location is not None:
+                user_profile.location = location
+            if phone is not None:
+                user_profile.phone = phone
+            user_profile.save()
+        
         profile_images = ProfileImage.objects.filter(profile=user_profile)
         
         context = {
@@ -164,6 +176,7 @@ def payment_page(request, car_slug):
     discount = 0
     final_price = car.price
     applied_coupon = None 
+    car_name  = car.car_name
     
     try:
         cart_obj = Cart.objects.get(is_paid=False, user=request.user)
@@ -190,32 +203,40 @@ def payment_page(request, car_slug):
     payment = client.order.create({'amount': final_price * 100, 'currency': 'INR', 'payment_capture': 1})
     cart_obj.razor_pay_order_id = payment['id']
     if coupon: 
-        cart_obj.coupon = coupon  
+        cart_obj.coupon = coupon
+    cart_obj.amount = final_price
+    cart_obj.car = car
     cart_obj.save()
-
-    print(payment)
 
     context = {
         'cart': cart_obj,
         'car': car,
         'discount': discount,
         'final_price': final_price,
-        'applied_coupon': applied_coupon,  # Add applied_coupon to context
+        'applied_coupon': applied_coupon,
         'payment': payment,
     }
     return render(request, 'accounts/payment.html', context)
 
+@login_required
 def remove_coupon(request):
     if 'coupon_code' in request.session:
         del request.session['coupon_code']
     return JsonResponse({'success': True})
 
+@login_required
 def success(request):
     order_id = request.GET.get('razorpay_order_id')
     try:
         cart = Cart.objects.get(razor_pay_order_id=order_id)
         cart.is_paid = True
         cart.save()
+        send_payment_confirmation_email(
+            user_email=request.user.email,
+            amount_paid = cart.amount,      
+            car_details=cart.car,         
+            order_id=order_id                  # Adjust this if needed
+        )
         return render(request, 'accounts/success.html')
     except ObjectDoesNotExist:
         return HttpResponse('Cart with the specified razor_pay_order_id does not exist.', status=404)
@@ -223,7 +244,6 @@ def success(request):
 
 def test(request):
     try:
-        # context = {'cars':Car.objects.all()}
         return render(request, 'accounts/test.html')
     except Exception as e:
         print(e)

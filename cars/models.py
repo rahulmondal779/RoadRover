@@ -48,6 +48,9 @@ class CarImage(BaseModel):
     car = models.ForeignKey(Car,on_delete=models.CASCADE,related_name="Car_Image")
     image = models.ImageField(upload_to="car")
 
+    def __str__(self) -> str:
+        return self.car.car_name
+
 class Coupon(BaseModel):
     coupon_code = models.CharField(max_length=20)
     is_expired = models.BooleanField(default=False)
