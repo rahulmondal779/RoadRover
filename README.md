@@ -11,6 +11,7 @@ RoadRover is a rental car management system designed to simplify the process of 
 - **User Profile**: View and manage user profiles with booking history and preferences.
 - **Admin Dashboard**: Administrators have access to an admin dashboard to manage cars, bookings, and users.
 - **Responsive Design**: The system is designed with responsiveness in mind, ensuring usability across various devices.
+- **Multiple Payment Option**: The Razorpay Payment Gateway have multiple payment options
 
 ## Technologies Used
 
